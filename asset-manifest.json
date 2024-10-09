@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/wage-timer-app/static/css/main.ffa06ee3.css",
+    "main.js": "/wage-timer-app/static/js/main.b0ff54e4.js",
+    "static/js/453.32b57823.chunk.js": "/wage-timer-app/static/js/453.32b57823.chunk.js",
+    "index.html": "/wage-timer-app/index.html",
+    "main.ffa06ee3.css.map": "/wage-timer-app/static/css/main.ffa06ee3.css.map",
+    "main.b0ff54e4.js.map": "/wage-timer-app/static/js/main.b0ff54e4.js.map",
+    "453.32b57823.chunk.js.map": "/wage-timer-app/static/js/453.32b57823.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.ffa06ee3.css",
+    "static/js/main.b0ff54e4.js"
+  ]
+}
