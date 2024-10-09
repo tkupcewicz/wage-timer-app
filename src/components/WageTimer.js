@@ -4,6 +4,14 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import Cookies from "js-cookie";
 
+const currencies = [
+  { code: "USD", symbol: "$" },
+  { code: "EUR", symbol: "€" },
+  { code: "GBP", symbol: "£" },
+  { code: "JPY", symbol: "¥" },
+  { code: "PLN", symbol: "zł" },
+];
+
 const WageTimer = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [time, setTime] = useState(0);
@@ -13,6 +21,10 @@ const WageTimer = () => {
     const saved = Cookies.get("totalEarned");
     return saved ? parseFloat(saved) : 0;
   });
+  const [currency, setCurrency] = useState(() => {
+    const saved = Cookies.get("currency");
+    return saved || "USD";
+  });
 
   useEffect(() => {
     let interval;
@@ -20,7 +32,12 @@ const WageTimer = () => {
       interval = setInterval(() => {
         setTime((prevTime) => prevTime + 1);
         const earned = hourlyWage / 3600;
-        setEarnedMoney((prevMoney) => prevMoney + earned);
+        setEarnedMoney((prevMoney) => {
+          const newMoney = prevMoney + earned;
+          // Update the tab title
+          document.title = `${formatMoney(newMoney)} - Wage Timer`;
+          return newMoney;
+        });
         setTotalEarned((prevTotal) => {
           const newTotal = prevTotal + earned;
           Cookies.set("totalEarned", newTotal.toString(), { expires: 365 });
@@ -29,7 +46,18 @@ const WageTimer = () => {
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [isRunning, hourlyWage]);
+  }, [isRunning, hourlyWage, currency]);
+
+  useEffect(() => {
+    Cookies.set("currency", currency, { expires: 365 });
+  }, [currency]);
+
+  // Reset the tab title when the component unmounts or when the timer is reset
+  useEffect(() => {
+    return () => {
+      document.title = "Wage Timer";
+    };
+  }, []);
 
   const handleStartStop = () => {
     setIsRunning(!isRunning);
@@ -39,6 +67,7 @@ const WageTimer = () => {
     setIsRunning(false);
     setTime(0);
     setEarnedMoney(0);
+    document.title = "Wage Timer";
   };
 
   const handleResetTotal = () => {
@@ -55,6 +84,11 @@ const WageTimer = () => {
       .padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
+  const formatMoney = (amount) => {
+    const symbol = currencies.find((c) => c.code === currency).symbol;
+    return `${amount.toFixed(2)} ${symbol}`;
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
       <div className="bg-white rounded-lg shadow-md p-6 space-y-4 w-full max-w-md">
@@ -68,13 +102,24 @@ const WageTimer = () => {
             onChange={(e) => setHourlyWage(parseFloat(e.target.value))}
             className="flex-grow"
           />
+          <select
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value)}
+            className="border border-gray-300 rounded-md p-2"
+          >
+            {currencies.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.code}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="text-4xl font-bold text-center">{formatTime(time)}</div>
         <div className="text-2xl font-semibold text-center text-green-600">
-          Session: ${earnedMoney.toFixed(2)}
+          Session: {formatMoney(earnedMoney)}
         </div>
         <div className="text-xl font-semibold text-center text-blue-600">
-          Total Earned: ${totalEarned.toFixed(2)}
+          Total Earned: {formatMoney(totalEarned)}
         </div>
         <div className="flex space-x-2">
           <Button
